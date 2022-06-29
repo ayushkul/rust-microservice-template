@@ -1,10 +1,16 @@
-FROM rustlang/rust:nightly
-MAINTAINER <seanpquig@gmail.com>
+# Use this custom image
+FROM ekidd/rust-musl-builder:latest as rust-build
 
-WORKDIR /var/www/microservice/
-COPY . .
+# Add the source code (+fix file permissions)
+ADD --chown=rust:rust src src
+ADD --chown=rust:rust Cargo.toml Cargo.toml
 
-RUN rustc --version
-RUN cargo install
+# Build
+RUN cargo build --release
 
-CMD ["microservice"]
+FROM scratch
+
+# Copy the binary to a minimal Linux OS
+COPY --from=rust-build /home/rust/src/target/x86_64-unknown-linux-musl/release/rust-microservice-template .
+
+CMD ["./rust-microservice-template"]

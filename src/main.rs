@@ -1,30 +1,28 @@
-use actix_web::{get, web, App, HttpServer, HttpResponse, Responder};
-#[path = "app/modules/test/index.rs"] mod create_user;
+use actix_web::{web, App, HttpServer};
+use mongodb::{Client};
 
-#[get("/")]
-async fn index() -> impl Responder {
-    HttpResponse::Ok().body("Rust service prototype")
-}
-
-#[get("/healthcheck")]
-async fn healthcheck() -> impl Responder {
-    HttpResponse::Ok().body("I'm alive!")
-}
+#[path = "routes/index.rs"]
+mod routes;
+#[path = "app/constants/index.rs"]
+mod constants;
 
 pub fn init(config: &mut web::ServiceConfig) {
     config.service(
         web::scope("")
             .service(web::scope("/routes"))
-            .service(index)
-            .service(healthcheck)
-            .service(create_user::create_user)
+            .service(routes::index)
+            .service(routes::create_user)
+            .service(routes:: get_user)
     );
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    let client = Client::with_uri_str(constants::DB_URL).await.expect("failed to connect");
+
+    HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(client.clone()))
             .configure(init)
     })
         .bind(("127.0.0.1", 3001))?

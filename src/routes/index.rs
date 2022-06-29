@@ -1,18 +1,25 @@
-use actix_web::{get, HttpResponse, Responder};
+use actix_web::{get, post, HttpResponse, Responder, web};
+use mongodb::Client;
+
+#[path = "../app/modules/user/index.rs"]
+mod user_controller;
+
 
 #[get("/")]
-async fn index() -> impl Responder {
-    HttpResponse::Ok().body("Rust service prototype")
+pub async fn index() -> impl Responder {
+    HttpResponse::Ok().body("Rust microservice alive!")
 }
 
-#[get("/healthcheck")]
-async fn healthcheck() -> impl Responder {
-    HttpResponse::Ok().body("I'm alive!")
+#[get("/user")]
+pub async fn get_user(client: web::Data<Client>) -> impl Responder {
+    let user_details = user_controller::get_user(client).await;
+    HttpResponse::Ok().json(user_details)
 }
 
 
-#[get("/test")]
-pub async fn create_user() -> impl Responder {
-    HttpResponse::Ok().body("I'm wow!")
+#[post("/user")]
+pub async fn create_user(client: web::Data<Client>) -> impl Responder {
+    let user_details = user_controller::create_user(client).await;
+    HttpResponse::Ok().body("user_details")
 }
 
