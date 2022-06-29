@@ -12,7 +12,7 @@
 * run `cargo install` : To install the dependencies
 * run `cargo run` : It will start your server on your local machine
 * Configuration : `config/env` directory contains files to define environment specific variables
-* Dependencies : Defined under `package.json`
+* Dependencies : Defined under `Cargo.toml`
 * Database configuration : Defined under `config/dbConnection`
 * Deployment instructions : Docker based deployment, Dockerfile is there in parent directory
 
